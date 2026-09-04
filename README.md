@@ -1,4 +1,4 @@
-# 🏥 Healthcare Patient Analytics Pipeline
+# 🏥 Healthcare Patient Analytics 
 
 ## 📌 Introduction
 
