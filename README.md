@@ -877,7 +877,9 @@ healthcare-patient-analytics/
 ├── .gitignore
 │
 ├── architecture/
-│   └── healthcare_pipeline_architecture.png
+│   ├── high_level_architecture.png
+│   ├── low_level_architecture.png
+│   └── data_model.png
 │
 ├── data/
 │   └── csv/
@@ -896,11 +898,7 @@ healthcare-patient-analytics/
 │
 ├── databricks/
 │   └── bronze/
-│       ├── 01_Bronze_Patient_Demographics.sql
-│       ├── 02_Bronze_Patient_Vitals.sql
-│       ├── 03_Bronze_Patient_Diagnosis.sql
-│       ├── 04_Bronze_Lab_Results.sql
-│       └── 05_Bronze_Hospital_Info.sql
+│       └── bronze_tables.sql
 │
 ├── dbt/
 │   ├── models/
@@ -909,8 +907,6 @@ healthcare-patient-analytics/
 │   │   └── gold/
 │   │
 │   ├── tests/
-│   ├── macros/
-│   ├── seeds/
 │   ├── dbt_project.yml
 │   └── profiles.yml.example
 │
@@ -921,6 +917,7 @@ healthcare-patient-analytics/
 │   └── notifications/
 │
 └── requirements.txt
+
 ```
 
 ---
