@@ -1223,7 +1223,7 @@ healthcare_p2-main/
 │   └── patient_vitals.csv
 │
 ├── Development/
-│   ├── bronze_layer.txt
+│   ├── bronze
 │   ├── silver_layer.md
 │   ├── gold_layer.md
 │   └── business aggreggations.md
