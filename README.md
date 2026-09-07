@@ -1201,7 +1201,7 @@ is registered in Microsoft Entra ID to support secure non-interactive deployment
 # 📁 Repository Structure
 
 ```text
-healthcare_p2-main/
+healthcare-patient-analytics/
 │
 ├── Audits/
 │   ├── data_quality_alert_summary.sql
@@ -1215,7 +1215,7 @@ healthcare_p2-main/
 │   ├── dashboard2.png
 │   └── dash board3.png
 │
-├── DataSets/
+├── Data/csv
 │   ├── hospital_info.csv
 │   ├── lab_results.csv
 │   ├── patient_demographics.csv
@@ -1223,18 +1223,18 @@ healthcare_p2-main/
 │   └── patient_vitals.csv
 │
 ├── Development/
-│   ├── bronze
-│   ├── silver_layer.md
-│   ├── gold_layer.md
-│   └── business aggreggations.md
+│   ├── bronze.sql
+│   ├── silver.sql
+│   ├── gold.sql
+│   └── business aggreggations.sql
 │
 ├── Test/
 │   └── test_data_quality.py
 │
 ├── design/
-│   ├── High Level Model (1) (1).png
-│   ├── low level architecture (2).png
-│   └── data_model_trimmed (1).pdf
+│   ├── High Level Model.png
+│   ├── low level architecture.png
+│   └── data_model_trimmed.pdf
 │
 ├── Healthcare_Patient_Analytics_Premium.pptx
 └── README.md
@@ -1253,7 +1253,7 @@ design/
 ## High-Level Architecture
 
 ```text
-design/High Level Model (1) (1).png
+design/High Level Model.png
 ```
 
 Provides the overall healthcare pipeline architecture.
@@ -1261,7 +1261,7 @@ Provides the overall healthcare pipeline architecture.
 ## Low-Level Architecture
 
 ```text
-design/low level architecture (2).png
+design/low level architecture.png
 ```
 
 Provides the detailed pipeline and component-level architecture.
@@ -1269,7 +1269,7 @@ Provides the detailed pipeline and component-level architecture.
 ## Data Model
 
 ```text
-design/data_model_trimmed (1).pdf
+design/data_model_trimmed.pdf
 ```
 
 Contains the project's analytical data model.
