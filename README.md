@@ -2,263 +2,730 @@
 
 ## 🚀 Project Overview
 
-The **Healthcare Patient Analytics Pipeline** is an end-to-end Data Engineering project designed to ingest, process, transform, validate, and analyze healthcare patient data to generate reliable analytics and actionable insights.
+The **Healthcare Patient Analytics Pipeline** is an end-to-end Data Engineering project designed to ingest, transform, validate, and analyze healthcare data for hospital and patient analytics.
 
-The pipeline follows the **Medallion Architecture (Bronze → Silver → Gold)** using **Azure Databricks and Delta Lake**. Healthcare CSV files are ingested through **Azure Data Factory**, stored in **Azure Data Lake Storage Gen2**, processed in Databricks, transformed using **dbt**, orchestrated using **Apache Airflow**, and consumed through analytics dashboards and alerting systems.
+The project uses a modern **Lakehouse architecture** with **Azure Data Factory, Azure Data Lake Storage Gen2, Azure Databricks, Delta Lake, Unity Catalog, and dbt** to transform raw healthcare datasets into clean, validated, and analytics-ready data.
 
-The project focuses on building a scalable and reliable healthcare data platform with data quality validation, transformation, monitoring, and automated pipeline execution.
+The pipeline processes hospital information, patient demographics, diagnosis records, laboratory results, and patient vital measurements through a **Medallion Architecture (Bronze → Silver → Gold)**.
 
----
+The project focuses on:
 
-## 🎯 Project Objectives
-
-Healthcare organizations generate large volumes of patient, hospital, diagnosis, laboratory, and vital-sign data. Raw healthcare data often contains missing values, duplicate records, inconsistent formats, and invalid values.
-
-The main objectives of this project are:
-
-* Build an end-to-end healthcare data engineering pipeline.
-* Ingest healthcare CSV datasets using Azure Data Factory.
-* Store raw and processed data in Azure Data Lake Storage Gen2.
-* Implement Medallion Architecture using Databricks.
-* Create Bronze Delta tables for raw healthcare data.
-* Clean and standardize healthcare data in the Silver layer.
-* Build analytics-ready Gold tables using dbt.
-* Implement data quality and validation checks.
-* Create healthcare analytics dashboards.
-* Automate pipeline execution using Apache Airflow.
-* Implement Slack alerts for pipeline failures and important events.
-* Provide reliable datasets for healthcare analytics and decision-making.
+* Reliable ingestion of healthcare source data
+* Raw data storage and traceability
+* Data cleansing and standardization
+* Deduplication and validation
+* Healthcare business transformations
+* Patient risk-score calculation
+* Readmission-risk analysis
+* Hospital performance analysis
+* Laboratory abnormality analysis
+* Patient vitals trend analysis
+* Healthcare cost analysis
+* Data-quality auditing
+* Pipeline monitoring and failure alerting
+* CI/CD support through Azure DevOps
 
 ---
 
-## 🏗 Lakehouse Architecture
+# 🎯 Project Objectives
 
-The pipeline follows a modern **Azure Lakehouse Data Engineering Architecture**.
+The main objectives of the Healthcare Patient Analytics Pipeline are:
 
-### Architecture Flow
+* Build a scalable healthcare analytics data pipeline.
+* Ingest multiple healthcare datasets using **Azure Data Factory (ADF)**.
+* Convert source CSV files into Parquet format.
+* Store the processed source files in **Azure Data Lake Storage Gen2**.
+* Implement Bronze, Silver, and Gold layers using Medallion Architecture.
+* Register Bronze data as external tables using **Databricks Unity Catalog**.
+* Clean and standardize healthcare data using **dbt**.
+* Remove duplicate healthcare records.
+* Apply data-type casting and validation.
+* Identify invalid and physically impossible values.
+* Generate patient risk scores.
+* Categorize patient readmission risk.
+* Create hospital performance metrics.
+* Generate healthcare cost and treatment analytics.
+* Build analytics-ready Gold marts.
+* Implement data-quality audit tables.
+* Validate Gold and Silver datasets using automated tests.
+* Support pipeline orchestration and monitoring.
+* Generate Slack notifications for pipeline failures.
+* Support CI/CD using Azure DevOps.
+
+---
+
+# 🏗 Lakehouse Architecture
+
+The project follows a modern **Azure Lakehouse Architecture**.
 
 ```text
-Healthcare CSV Files
-        │
-        ▼
-Azure Data Factory
-        │
-        ▼
-Azure Data Lake Storage Gen2
-        │
-        ├── staging/
-        │      └── CSV files
-        │
-        └── parquet/
-               └── Parquet files
-        │
-        ▼
-Azure Databricks
-        │
-        ▼
-┌──────────────────────────────┐
-│       Bronze Layer           │
-│     Raw Delta Tables         │
-└──────────────────────────────┘
-        │
-        ▼
-┌──────────────────────────────┐
-│       Silver Layer           │
-│  Cleaned & Validated Data    │
-│          dbt                 │
-└──────────────────────────────┘
-        │
-        ▼
-┌──────────────────────────────┐
-│        Gold Layer            │
-│ Analytics & Business Metrics │
-│          dbt                 │
-└──────────────────────────────┘
-        │
-        ├──────────────► Dashboard
-        │
-        └──────────────► Slack Alerts
-
-Apache Airflow
-      │
-      └── Pipeline Orchestration & Monitoring
-```
-
----
-
-## 🛠 Technology Stack
-
-| Technology                   | Purpose                                |
-| ---------------------------- | -------------------------------------- |
-| Azure Data Lake Storage Gen2 | Cloud data lake storage                |
-| Azure Data Factory           | Data ingestion and file transformation |
-| Azure Databricks             | Data engineering and processing        |
-| Apache Spark / PySpark       | Distributed data processing            |
-| Delta Lake                   | Reliable table storage                 |
-| Unity Catalog                | Data governance and table management   |
-| dbt                          | SQL transformations and data modelling |
-| Apache Airflow               | Pipeline orchestration                 |
-| Slack                        | Pipeline alerts and notifications      |
-| Git / GitHub                 | Version control                        |
-| SQL                          | Data transformation and analytics      |
-
----
-
-## 📂 Dataset
-
-### Dataset Used
-
-**Healthcare Patient Analytics Dataset**
-
-The project uses healthcare datasets containing patient, hospital, diagnosis, laboratory, and vital information.
-
-### Source CSV Files
-
-* `hospital_info.csv`
-* `lab_results.csv`
-* `patient_demographics.csv`
-* `patient_diagnosis.csv`
-* `patient_vitals.csv`
-
-### Data Flow
-
-```text
-CSV
- │
- ▼
-ADF Pipeline
- │
- ▼
-ADLS Gen2 - Staging
- │
- ▼
-Parquet
- │
- ▼
-Databricks Bronze
- │
- ▼
-dbt Silver
- │
- ▼
-dbt Gold
-```
-
----
-
-# 🏗 ELT Design (Medallion Architecture)
-
-## 🥉 Bronze Layer – Raw Data Ingestion
-
-The Bronze layer stores the raw healthcare data in Delta format.
-
-### Bronze Processing
-
-* Read healthcare Parquet files from ADLS Gen2.
-* Load raw data into Databricks.
-* Preserve the original source information.
-* Create Delta tables for healthcare datasets.
-* Add ingestion metadata where required.
-* Maintain the raw layer for traceability and auditing.
-
-### Bronze Tables
-
-| Bronze Tables          |
-| ---------------------- |
-| `patient_demographics` |
-| `hospital_info`        |
-| `patient_diagnosis`    |
-| `patient_vitals`       |
-| `lab_results`          |
-
----
-
-## 🥈 Silver Layer – Data Cleaning & Transformation
-
-The Silver layer contains cleaned, standardized, and validated healthcare data.
-
-Transformations are implemented using **dbt SQL models** on Databricks.
-
-### Silver Processing
-
-* Remove invalid records.
-* Handle NULL and blank values.
-* Trim unnecessary spaces.
-* Standardize text formats.
-* Standardize healthcare attributes.
-* Validate patient identifiers.
-* Remove duplicate records.
-* Apply appropriate data types.
-* Validate diagnosis and laboratory information.
-* Clean patient vital measurements.
-* Prepare reliable datasets for analytics.
-
-### Silver Models
-
-| Silver Tables                 |
-| ----------------------------- |
-| `silver_patient_demographics` |
-| `silver_hospital_info`        |
-| `silver_patient_diagnosis`    |
-| `silver_patient_vitals`       |
-| `silver_lab_results`          |
-
----
-
-## 🥇 Gold Layer – Analytics & Insights
-
-The Gold layer contains business-ready healthcare datasets used for analytics and dashboards.
-
-The Gold layer is created using **dbt SQL models**.
-
-### Gold Processing
-
-* Combine patient and hospital information.
-* Analyze patient diagnosis information.
-* Analyze laboratory results.
-* Analyze patient vital measurements.
-* Generate healthcare metrics.
-* Create aggregated analytical datasets.
-* Prepare dashboard-ready tables.
-* Support healthcare trend analysis.
-
-### Gold Models
-
-| Gold Tables               |
-| ------------------------- |
-| `gold_patient_analysis`   |
-| `gold_hospital_analysis`  |
-| `gold_diagnosis_analysis` |
-| `gold_lab_analysis`       |
-| `gold_vitals_analysis`    |
-| `gold_cost_analysis`      |
-
----
-
-# 📊 Data Models
-
-The project uses a structured analytical data model to support healthcare reporting and analytics.
-
-### Analytical Model
-
-```text
-                    ┌─────────────────────┐
-                    │    Hospital Info     │
-                    └──────────┬──────────┘
+                  ┌──────────────────────────┐
+                  │   Healthcare CSV Files   │
+                  │                          │
+                  │ hospital_info            │
+                  │ lab_results              │
+                  │ patient_demographics     │
+                  │ patient_diagnosis        │
+                  │ patient_vitals           │
+                  └────────────┬─────────────┘
                                │
                                ▼
-┌──────────────────┐     ┌─────────────────────┐
-│ Patient          │────►│ Healthcare Patient  │
-│ Demographics     │     │ Analytics           │
-└──────────────────┘     └──────────┬──────────┘
-                                    │
-             ┌──────────────────────┼──────────────────────┐
-             ▼                      ▼                      ▼
-   ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-   │ Patient         │    │ Patient         │    │ Laboratory      │
-   │ Diagnosis       │    │ Vitals          │    │ Results         │
-   └─────────────────┘    └─────────────────┘    └─────────────────┘
+                  ┌──────────────────────────┐
+                  │    Azure Data Factory    │
+                  │                          │
+                  │ Ingestion + Conversion   │
+                  │       CSV → Parquet      │
+                  └────────────┬─────────────┘
+                               │
+                               ▼
+                  ┌──────────────────────────┐
+                  │     ADLS Gen2            │
+                  │                          │
+                  │       Parquet Container  │
+                  └────────────┬─────────────┘
+                               │
+                               ▼
+        ┌────────────────────────────────────────────┐
+        │             Azure Databricks               │
+        │                                            │
+        │              Unity Catalog                │
+        └────────────────────┬───────────────────────┘
+                             │
+                             ▼
+                  ┌──────────────────────────┐
+                  │     🥉 Bronze Layer      │
+                  │                          │
+                  │ Raw External Tables      │
+                  └────────────┬─────────────┘
+                               │
+                               ▼
+                  ┌──────────────────────────┐
+                  │      🥈 Silver Layer     │
+                  │                          │
+                  │ Cleaning + Validation    │
+                  │ Deduplication + Standard │
+                  │          dbt              │
+                  └────────────┬─────────────┘
+                               │
+                               ▼
+                  ┌──────────────────────────┐
+                  │       🥇 Gold Layer      │
+                  │                          │
+                  │ Star Schema + Gold Marts │
+                  │          dbt              │
+                  └────────────┬─────────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+              ▼                ▼                ▼
+        ┌───────────┐    ┌────────────┐   ┌───────────┐
+        │ Dashboards│    │  Analytics │   │   Alerts  │
+        └───────────┘    └────────────┘   └───────────┘
 ```
+
+---
+
+# 🛠 Technology Stack
+
+| Technology                       | Purpose                                       |
+| -------------------------------- | --------------------------------------------- |
+| **Azure Data Lake Storage Gen2** | Cloud data lake storage                       |
+| **Azure Data Factory**           | Data ingestion and CSV-to-Parquet conversion  |
+| **Azure Databricks**             | Lakehouse data processing                     |
+| **Apache Spark / SQL**           | Data processing and transformation            |
+| **Delta Lake**                   | Structured and reliable data storage          |
+| **Unity Catalog**                | Data governance and external table management |
+| **dbt Cloud**                    | Silver and Gold SQL transformations           |
+| **Apache Airflow**               | Pipeline orchestration                        |
+| **Azure DevOps**                 | CI/CD and repository integration              |
+| **Slack**                        | Pipeline failure notifications                |
+| **Python / Pytest**              | Data-quality testing                          |
+| **Git / GitHub**                 | Version control                               |
+
+---
+
+# 📂 Dataset
+
+## Dataset Source
+
+**Simulated Healthcare Patient Data**
+
+The project dataset is based on the **Kaggle Heart Disease Dataset** and is organized into multiple healthcare domains.
+
+## Datasets Used
+
+### 🏥 Hospital Information
+
+`hospital_info.csv`
+
+Contains hospital-level information such as:
+
+* Hospital ID
+* Hospital name
+* City
+* State
+* Bed capacity
+* ICU beds
+* Staff count
+* Infection rate
+* Utilization rate
+* Average wait time
+* Equipment score
+* Patient load
+* Surgery count
+* Emergency cases
+* Record date
+
+### 👤 Patient Demographics
+
+`patient_demographics.csv`
+
+Contains patient-level demographic and lifestyle information including:
+
+* Patient ID
+* Age
+* Gender
+* Age group
+* Lifestyle risk
+* Smoking index
+* Alcohol index
+* Exercise hours
+* Sleep hours
+* Diet score
+* Health score
+* Record date
+
+### 🩺 Patient Diagnosis
+
+`patient_diagnosis.csv`
+
+Contains clinical diagnosis and risk-related information including:
+
+* Patient ID
+* Hospital ID
+* Diagnosis code
+* Severity score
+* Risk probability
+* Readmission risk
+* Comorbidity score
+* Doctor information
+* Treatment cost
+* Medication count
+* Recovery days
+* Record date
+
+### 🧪 Laboratory Results
+
+`lab_results.csv`
+
+Contains laboratory observations such as:
+
+* Patient ID
+* Hospital ID
+* Laboratory test
+* Laboratory values
+* Hemoglobin
+* Platelets
+* WBC
+* RBC
+* Creatinine
+* Technician information
+* Test cost
+* Record date
+
+### ❤️ Patient Vitals
+
+`patient_vitals.csv`
+
+Contains patient vital measurements such as:
+
+* Patient ID
+* Hospital ID
+* Heart rate
+* Blood pressure
+* Oxygen level
+* BMI
+* Glucose
+* Vital measurements
+* Record date
+
+---
+
+# 🏗 ELT Design – Medallion Architecture
+
+The pipeline is organized into three major layers:
+
+```text
+Raw Healthcare Data
+       │
+       ▼
+🥉 Bronze
+       │
+       ▼
+🥈 Silver
+       │
+       ▼
+🥇 Gold
+       │
+       ▼
+Healthcare Analytics
+```
+
+---
+
+# 🥉 Bronze Layer – Raw Data Ingestion
+
+## Purpose
+
+The Bronze layer provides the raw representation of healthcare source data.
+
+The Bronze implementation uses **Parquet files stored in ADLS Gen2** and registers them as external tables in Databricks Unity Catalog.
+
+## Bronze Processing
+
+* Healthcare CSV files are ingested through Azure Data Factory.
+* Source files are converted to Parquet.
+* Parquet files are stored in the ADLS Gen2 Parquet container.
+* Databricks Unity Catalog external tables are created over the Parquet files.
+* Raw source information is preserved for traceability.
+* The Bronze layer provides the foundation for downstream dbt transformations.
+
+## Bronze Tables
+
+```text
+bronze.hospital_info
+bronze.lab_results
+bronze.patient_demographics
+bronze.patient_diagnosis
+bronze.patient_vitals
+```
+
+## Bronze Architecture
+
+```text
+CSV Files
+   │
+   ▼
+Azure Data Factory
+   │
+   ▼
+ADLS Gen2
+   │
+   ▼
+Parquet Files
+   │
+   ▼
+Unity Catalog External Tables
+   │
+   ▼
+Bronze Layer
+```
+
+---
+
+# 🥈 Silver Layer – Data Cleaning & Transformation
+
+The Silver layer is implemented using **dbt SQL models** on top of the Bronze tables.
+
+## Purpose
+
+The Silver layer transforms raw healthcare data into consistent, validated, and analytics-ready datasets.
+
+## Transformations
+
+The Silver layer performs:
+
+* NULL handling
+* Blank-value handling
+* Data-type casting
+* String trimming
+* Data standardization
+* Duplicate detection and removal
+* Record-date standardization
+* Key validation
+* Numeric validation
+* Range validation
+* Data-quality flag generation
+* Orphan-record detection
+* Readmission-risk categorization
+* Healthcare field standardization
+
+## Deduplication
+
+Duplicate records are handled using `ROW_NUMBER()`-based deduplication patterns over business keys such as:
+
+```text
+Patient + Record Date
+Hospital + Record Date
+Patient + Hospital + Record Date + Diagnosis
+Patient + Hospital + Record Date + Laboratory Test
+Patient + Hospital + Record Date
+```
+
+## Data Quality Flags
+
+Invalid or suspicious records can be identified using a `data_quality_flag`.
+
+Examples include:
+
+```text
+Invalid values
+Negative values
+Orphan records
+NULL keys
+Invalid healthcare measurements
+```
+
+## Silver Models
+
+```text
+silver_hospital_info
+silver_lab_results
+silver_patient_demographics
+silver_patient_diagnosis
+silver_patient_vitals
+```
+
+---
+
+# 🥇 Gold Layer – Analytics & Insights
+
+The Gold layer contains the business-ready healthcare analytical models.
+
+Gold transformations are implemented using **dbt SQL models**.
+
+The Gold layer contains both:
+
+1. **Dimensional/star-schema models**
+2. **Business analytical marts**
+
+---
+
+# ⭐ Gold Data Model
+
+The analytical model is based on a star-schema approach.
+
+```text
+                    ┌────────────────────┐
+                    │    DIM_PATIENT     │
+                    └─────────┬──────────┘
+                              │
+                              │
+┌────────────────┐            │            ┌────────────────┐
+│  DIM_HOSPITAL  │────────────┼────────────│    DIM_DATE    │
+└────────────────┘            │            └────────────────┘
+                              │
+                              ▼
+                   ┌─────────────────────┐
+                   │ FACT_HEALTH_METRICS │
+                   └──────────┬──────────┘
+                              │
+                              ▼
+                   ┌─────────────────────┐
+                   │   DIM_OBSERVATION   │
+                   └─────────────────────┘
+```
+
+---
+
+# 📐 Gold Dimension Models
+
+## `dim_patient`
+
+Provides the patient dimension for analytical reporting.
+
+It represents patient-level demographic and lifestyle information.
+
+---
+
+## `dim_hospital`
+
+Provides hospital-level analytical attributes including:
+
+* Hospital ID
+* Hospital name
+* City
+* State
+* Bed capacity
+* ICU beds
+* Staff count
+* Infection rate
+* Utilization rate
+* Wait time
+* Equipment score
+* Patient load
+* Surgery count
+* Emergency cases
+* Latest record date
+
+---
+
+## `dim_date`
+
+Provides date-related analytical attributes including:
+
+* Date
+* Year
+* Quarter
+* Month
+* Month name
+* Other calendar attributes
+
+It supports time-based healthcare analysis.
+
+---
+
+## `dim_observations`
+
+Combines healthcare observations from:
+
+* Diagnosis
+* Laboratory results
+* Patient vitals
+
+The model standardizes different observation types into a common analytical structure.
+
+Observation types include:
+
+```text
+DIAGNOSIS
+LAB
+VITAL
+```
+
+---
+
+# 📊 Fact Table – `fact_health_metrics`
+
+The central Gold fact table is:
+
+```text
+fact_health_metrics
+```
+
+This table combines patient, hospital, date, observation, diagnosis, laboratory, and vital information into a common analytical structure.
+
+## Key Metrics
+
+The fact table supports metrics such as:
+
+* Patient risk score
+* Risk probability
+* Severity score
+* Readmission risk
+* Comorbidity score
+* Lifestyle risk
+* Smoking index
+* Alcohol index
+* Health score
+* Treatment cost
+* Test cost
+* Insurance claim
+* Hospital utilization
+* Patient load
+* Infection rate
+* Equipment score
+* Vital indicators
+* Laboratory indicators
+
+---
+
+# 🧮 Patient Risk Score
+
+The project generates a composite **Patient Risk Score** using healthcare risk-related attributes.
+
+The calculation uses factors including:
+
+* `risk_probability`
+* `severity_score`
+* `comorbidity_score`
+* `lifestyle_risk`
+* `smoking_index`
+* `alcohol_index`
+
+The resulting score is used to support patient-risk analysis and healthcare reporting.
+
+---
+
+# 🏥 Gold Business Marts
+
+The project contains eight business-oriented Gold marts.
+
+## 1. Patient Risk Summary
+
+```text
+gold_patient_risk_summary
+```
+
+Provides patient risk analysis using dimensions such as:
+
+* Age group
+* Gender
+* Patient count
+* Risk probability
+* Severity
+* Patient risk score
+
+---
+
+## 2. Hospital Performance Scorecard
+
+```text
+gold_hospital_performance_scorecard
+```
+
+Provides hospital-level performance metrics including:
+
+* Observation count
+* Patient count
+* Infection rate
+* Utilization rate
+* Average wait time
+* Equipment score
+* Patient load
+* Surgery count
+* Emergency cases
+* Average patient risk score
+
+---
+
+## 3. Vitals Trend Analysis
+
+```text
+gold_vitals_trend_analysis
+```
+
+Supports analysis of patient vital measurements and healthcare trends.
+
+The analysis can be used for:
+
+* Vital-sign monitoring
+* Patient health trends
+* Abnormal vital identification
+* Risk analysis
+
+---
+
+## 4. Cost Analysis
+
+```text
+gold_cost_analysis
+```
+
+Provides financial and treatment-related analytics.
+
+Metrics include:
+
+* Observation count
+* Patient count
+* Total treatment cost
+* Total test cost
+* Total insurance claim
+* Average treatment cost
+* Average test cost
+* Average insurance claim
+* Average patient risk score
+
+Analysis can be performed by:
+
+* Hospital
+* City
+* State
+* Diagnosis
+
+---
+
+## 5. Readmission Risk Distribution
+
+```text
+gold_readmission_risk_distribution
+```
+
+Provides analysis of patient readmission-risk categories.
+
+Risk categories include:
+
+```text
+Low
+Medium
+High
+```
+
+This enables healthcare teams to analyze the distribution of patients across different readmission-risk levels.
+
+---
+
+## 6. Lifestyle Health Correlation
+
+```text
+gold_lifestyle_health_correlation
+```
+
+Analyzes relationships between lifestyle attributes and health outcomes.
+
+Metrics include:
+
+* Smoking index
+* Alcohol index
+* Exercise hours
+* Sleep hours
+* Diet score
+* Lifestyle risk
+* Health score
+* Risk probability
+* Patient risk score
+
+Analysis is grouped by:
+
+* Age group
+* Gender
+
+---
+
+## 7. Laboratory Abnormality Rate
+
+```text
+gold_lab_abnormality_rate
+```
+
+Provides laboratory-quality and abnormality analysis.
+
+Metrics include:
+
+* Laboratory observation count
+* Patient count
+* Abnormal laboratory count
+* Abnormal laboratory percentage
+
+The analysis is grouped by laboratory test name.
+
+---
+
+## 8. Monthly & Quarterly Trend
+
+```text
+gold_monthly_quarterly_trend
+```
+
+Provides time-based healthcare analytics.
+
+Metrics include:
+
+* Observation count
+* Patient count
+* Average risk probability
+* Average severity score
+* Average patient risk score
+* Total treatment cost
+* Total test cost
+* Total insurance claim
+
+Analysis is available by:
+
+* Year
+* Quarter
+* Month
+* Month name
 
 ---
 
@@ -266,227 +733,546 @@ The project uses a structured analytical data model to support healthcare report
 
 ## Descriptive Analytics
 
-The pipeline supports descriptive healthcare analytics such as:
+The Gold layer supports descriptive analysis including:
 
-* Patient population analysis.
-* Hospital-wise patient distribution.
-* Diagnosis distribution.
-* Patient vital trends.
-* Laboratory result analysis.
-* Healthcare activity trends.
+* Patient population analysis
+* Hospital-wise patient distribution
+* Diagnosis distribution
+* Patient risk distribution
+* Readmission-risk distribution
+* Laboratory abnormality rates
+* Patient vitals trends
+* Healthcare costs
+* Monthly and quarterly healthcare trends
 
 ---
 
 ## Diagnostic Analytics
 
-The pipeline can be used to analyze:
+The project supports diagnostic analysis such as:
 
-* Diagnosis patterns.
-* Hospital performance.
-* Patient health indicators.
-* Laboratory result variations.
-* Vital-sign abnormalities.
-* Relationship between patient characteristics and diagnoses.
+* Hospital utilization analysis
+* Hospital performance comparison
+* Diagnosis and treatment analysis
+* Laboratory abnormality analysis
+* Patient lifestyle and health analysis
+* Patient risk analysis
+* Readmission-risk analysis
+* Healthcare cost analysis
 
 ---
 
 ## Advanced Analytics
 
-The Gold layer can support:
+The Gold layer provides a foundation for advanced healthcare analytics including:
 
-* High-risk patient identification.
-* Hospital-wise healthcare analysis.
-* Diagnosis trend analysis.
-* Patient health monitoring.
-* Cost analysis.
-* Healthcare performance metrics.
+* High-risk patient identification
+* Readmission-risk analysis
+* Patient health-risk scoring
+* Hospital performance scoring
+* Lifestyle-health correlation
+* Laboratory abnormality monitoring
+* Time-based risk analysis
+* Healthcare cost analysis
 
 ---
 
 # 📊 Dashboards
 
-The Gold layer provides analytics-ready datasets for dashboards.
+The repository contains three dashboard images under:
 
-### Dashboard Areas
+```text
+DashBoards/
+```
 
-* Patient Overview
-* Hospital Analysis
-* Diagnosis Analysis
-* Patient Vital Analysis
-* Laboratory Analysis
-* Healthcare Cost Analysis
-* Patient Risk Analysis
-* Healthcare Trends
+Files:
 
-The dashboards consume the processed **Gold-layer datasets** rather than raw healthcare data.
+```text
+dashboard1.png
+dashboard2.png
+dash board3.png
+```
+
+The dashboards are designed around the Gold analytical datasets.
+
+### Dashboard Analytics
+
+The dashboard layer supports:
+
+* Patient overview
+* Patient risk analysis
+* Hospital performance
+* Healthcare cost analysis
+* Diagnosis analysis
+* Laboratory analysis
+* Vital trends
+* Readmission-risk analysis
+* Lifestyle and health analysis
+* Time-based healthcare trends
 
 ---
 
-# 🧰 Data Build Tool (dbt)
+# 🧰 Data Build Tool – dbt
 
-dbt is used for SQL-based transformations and modelling in the **Silver and Gold layers**.
+**dbt Cloud** is used to implement the transformation layer.
 
-### dbt Implementation
+dbt is responsible for transforming Bronze datasets into Silver and Gold analytical models.
 
-* Connected dbt with Databricks.
-* Created Silver transformation models.
-* Created Gold analytical models.
-* Used modular SQL transformations.
-* Standardized healthcare fields.
-* Implemented reusable transformation logic.
-* Materialized models as Delta tables.
-* Created structured analytics datasets.
-* Applied data quality tests.
-* Used dbt models as the foundation for dashboard analytics.
+## dbt Silver
 
-### dbt Layer
+The Silver dbt models perform:
+
+* Data cleaning
+* Data standardization
+* Data-type conversion
+* Deduplication
+* Data-quality flagging
+* Key validation
+* Healthcare field transformation
+
+## dbt Gold
+
+The Gold dbt models create:
+
+* Dimension tables
+* Fact table
+* Healthcare analytical marts
+* Business aggregations
+* Patient risk metrics
+* Hospital performance metrics
+* Cost analysis
+* Laboratory analytics
+* Vitals analytics
+* Lifestyle-health analytics
+* Time-based analytics
+
+## dbt Model Flow
 
 ```text
-Bronze Delta Tables
-        │
-        ▼
-      dbt
-        │
-        ├── Silver Models
-        │      │
-        │      ▼
-        │  Cleaned Data
-        │
-        └── Gold Models
-               │
-               ▼
-        Analytics Tables
+Bronze External Tables
+          │
+          ▼
+         dbt
+          │
+          ▼
+Silver Models
+          │
+          ▼
+Gold Dimensions
+          │
+          ▼
+FACT_HEALTH_METRICS
+          │
+          ▼
+Gold Business Marts
 ```
 
 ---
 
 # 🔄 Apache Airflow – Pipeline Orchestration
 
-The pipeline execution is automated using **Apache Airflow**.
+The project is designed to support automated pipeline orchestration using **Apache Airflow / Databricks workflows**.
 
-### Workflow Tasks
+## Pipeline Tasks
 
-1. Start healthcare pipeline.
-2. Trigger data ingestion.
-3. Validate source files.
-4. Process Bronze layer.
-5. Execute dbt Silver models.
-6. Execute dbt Gold models.
-7. Perform data quality checks.
-8. Validate pipeline execution.
-9. Send Slack notifications.
-10. Log pipeline execution status.
-
-### Pipeline Flow
+The documented pipeline flow consists of:
 
 ```text
-Airflow
-   │
-   ▼
-Data Ingestion
-   │
-   ▼
-Bronze Processing
-   │
-   ▼
-dbt Silver
-   │
-   ▼
-dbt Gold
-   │
-   ▼
-Data Quality Checks
-   │
-   ├────────► Success ───────► Slack
-   │
-   └────────► Failure ───────► Slack Alert
+Task 1
+Bronze ingestion
+
+      ↓
+
+Task 2
+Silver transformation using dbt
+
+      ↓
+
+Task 3
+Gold aggregation and analytics
+
+      ↓
+
+Data Quality Validation
+
+      ↓
+
+Monitoring / Alerts
 ```
+
+## Scheduling
+
+The documented target schedule is:
+
+```text
+Daily Batch
+02:00 UTC
+```
+
+Airflow is intended to coordinate the end-to-end pipeline execution and provide visibility into pipeline task status.
 
 ---
 
 # ⚠ Alerts, Monitoring & Logging
 
-Slack is integrated into the pipeline for automated notifications.
+The project includes alerting and monitoring capabilities for pipeline reliability.
 
-### Alerts Include
+## Slack Alerts
 
-* Pipeline failure alerts.
-* Task failure notifications.
-* Data quality failure notifications.
-* Successful pipeline completion.
-* Important pipeline execution events.
+A Slack application named:
 
-### Monitoring
+```text
+Databricks Alerts
+```
 
-* Airflow DAG monitoring.
-* Databricks job monitoring.
-* dbt execution monitoring.
-* Data quality monitoring.
-* Pipeline execution logs.
+is configured using an **Incoming Webhook**.
+
+The documented Databricks notification destination is:
+
+```text
+slack-databricks-alerts
+```
+
+The notification is configured for job failure events.
+
+A test job with an intentionally failing SQL task was used to verify the failure-alert mechanism.
+
+## Monitoring
+
+Monitoring includes:
+
+* Databricks job execution
+* Databricks logs
+* dbt Cloud run logs
+* Pipeline failures
+* Slack notifications
+* Data-quality audit tables
+
+---
+
+# 🧾 Audits & Error Handling
+
+The repository contains a dedicated:
+
+```text
+Audits/
+```
+
+directory.
+
+The audit layer contains SQL models for monitoring data quality and pipeline issues.
+
+## `data_quality_alert_summary.sql`
+
+Aggregates data-quality flags from all five Silver models.
+
+It generates:
+
+* Table name
+* Data-quality flag
+* Issue count
+* Alert severity
+* Alert timestamp
+
+Alert severity is classified as:
+
+```text
+LOW
+MEDIUM
+HIGH
+```
+
+based on issue counts.
+
+---
+
+## `duplicate_record_log.sql`
+
+Identifies duplicate records across:
+
+* Patient demographics
+* Hospital information
+* Patient diagnosis
+* Laboratory results
+* Patient vitals
+
+The model records duplicate counts and relevant business keys.
+
+---
+
+## `etl_errors.sql`
+
+Captures ETL-related errors including:
+
+* NULL or empty patient IDs
+* NULL or empty hospital IDs
+* NULL keys after cleansing
+
+The model also retains the source-file information for traceability.
+
+---
+
+## `quarantine_records.sql`
+
+Identifies records flagged as orphan records in:
+
+* Patient diagnosis
+* Laboratory results
+* Patient vitals
+
+These records are separated for further investigation.
+
+---
+
+## `row_count_audit.sql`
+
+Tracks row counts for:
+
+* Silver patient demographics
+* Silver hospital information
+* Silver patient diagnosis
+* Silver laboratory results
+* Silver patient vitals
+* Gold fact health metrics
+
+This provides a simple mechanism for monitoring data-volume changes across the pipeline.
 
 ---
 
 # ✅ Data Quality & Testing
 
-Data quality checks are implemented across the pipeline to improve data reliability.
+The project includes automated data-quality testing using **Python, Databricks SQL, and Pytest**.
 
-### Validation Checks
-
-* Schema validation.
-* Null-value checks.
-* Duplicate detection.
-* Patient ID validation.
-* Data type validation.
-* Row-count validation.
-* Invalid-value detection.
-* dbt model tests.
-* Pipeline execution validation.
-
-### Data Quality Flow
+Test implementation:
 
 ```text
-Raw Data
-   │
-   ▼
-Schema Validation
-   │
-   ▼
-Null Checks
-   │
-   ▼
-Duplicate Checks
-   │
-   ▼
-Transformation Validation
-   │
-   ▼
-Gold Data Validation
-   │
-   ▼
-Dashboard Ready
+Test/test_data_quality.py
+```
+
+## Tests Implemented
+
+### Fact Table Row Validation
+
+Verifies that:
+
+```text
+fact_health_metrics
+```
+
+contains records.
+
+---
+
+### Fact Table Key Validation
+
+Checks that the following keys are not NULL:
+
+```text
+patient_key
+hospital_key
+date_key
+```
+
+---
+
+### Duplicate Fact Key Validation
+
+Checks that:
+
+```text
+health_metric_key
+```
+
+does not contain duplicate records.
+
+---
+
+### Patient Risk Score Validation
+
+Validates that:
+
+```text
+patient_risk_score
+```
+
+remains within the expected range.
+
+---
+
+### Silver Patient Deduplication
+
+Validates that `silver_patient_demographics` does not contain duplicate:
+
+```text
+patient_id + record_date
+```
+
+records.
+
+---
+
+### Silver Hospital Deduplication
+
+Validates that `silver_hospital_info` does not contain duplicate:
+
+```text
+hospital_id + record_date
+```
+
+records.
+
+---
+
+### Gold Mart Validation
+
+The following eight Gold marts are checked to ensure they contain records:
+
+```text
+gold_patient_risk_summary
+gold_hospital_performance_scorecard
+gold_vitals_trend_analysis
+gold_cost_analysis
+gold_readmission_risk_distribution
+gold_lifestyle_health_correlation
+gold_lab_abnormality_rate
+gold_monthly_quarterly_trend
 ```
 
 ---
 
 # 🔐 Data Governance
 
-The project uses **Databricks Unity Catalog** for structured data management and governance.
+The project uses **Databricks Unity Catalog** to manage healthcare data assets.
 
-### Catalog Structure
+The architecture separates data into:
 
 ```text
-healthcare_catalog
-│
-├── bronze
-│
-├── silver
-│
-├── gold
-│
-└── logs
+bronze
+silver
+gold
 ```
 
-Unity Catalog provides centralized management of the healthcare data assets and supports controlled access to the different layers.
+Unity Catalog is used for:
+
+* Table management
+* External table registration
+* Data governance
+* Access control
+* Data organization
+* Lakehouse metadata management
+
+The Bronze layer uses an **External Location and Storage Credential** to access the ADLS Gen2 Parquet data.
+
+---
+
+# 🔁 CI/CD – Azure DevOps
+
+The project includes an Azure DevOps CI/CD setup.
+
+## Repository Integration
+
+The Databricks workspace is connected to Azure Repos using a Databricks Git folder.
+
+The project code and notebooks can be committed and pushed through the linked Azure DevOps repository.
+
+## Azure Pipeline
+
+The documented pipeline includes:
+
+* Python environment setup
+* Pytest installation
+* Repository validation
+* Test execution
+* Build artifact generation
+* Artifact publishing
+
+## Service Principal
+
+A service principal named:
+
+```text
+Databricks-SP
+```
+
+is registered in Microsoft Entra ID to support secure non-interactive deployment access between Azure DevOps and Databricks.
+
+---
+
+# 📁 Repository Structure
+
+```text
+healthcare_p2-main/
+│
+├── Audits/
+│   ├── data_quality_alert_summary.sql
+│   ├── duplicate_record_log.sql
+│   ├── etl_errors.sql
+│   ├── quarantine_records.sql
+│   └── row_count_audit.sql
+│
+├── DashBoards/
+│   ├── dashboard1.png
+│   ├── dashboard2.png
+│   └── dash board3.png
+│
+├── DataSets/
+│   ├── hospital_info.csv
+│   ├── lab_results.csv
+│   ├── patient_demographics.csv
+│   ├── patient_diagnosis.csv
+│   └── patient_vitals.csv
+│
+├── Development/
+│   ├── bronze_layer.txt
+│   ├── silver_layer.md
+│   ├── gold_layer.md
+│   └── business aggreggations.md
+│
+├── Test/
+│   └── test_data_quality.py
+│
+├── design/
+│   ├── High Level Model (1) (1).png
+│   ├── low level architecture (2).png
+│   └── data_model_trimmed (1).pdf
+│
+├── Healthcare_Patient_Analytics_Premium.pptx
+└── README.md
+```
+
+---
+
+# 🎨 Architecture & Design Documentation
+
+The repository contains architecture and data-model documentation under:
+
+```text
+design/
+```
+
+## High-Level Architecture
+
+```text
+design/High Level Model (1) (1).png
+```
+
+Provides the overall healthcare pipeline architecture.
+
+## Low-Level Architecture
+
+```text
+design/low level architecture (2).png
+```
+
+Provides the detailed pipeline and component-level architecture.
+
+## Data Model
+
+```text
+design/data_model_trimmed (1).pdf
+```
+
+Contains the project's analytical data model.
 
 ---
 
@@ -494,57 +1280,107 @@ Unity Catalog provides centralized management of the healthcare data assets and 
 
 ### Role: Data Engineer
 
-Responsibilities included:
+My responsibilities in the project included:
 
-* Designed and implemented the healthcare data pipeline.
-* Worked with Azure Data Factory for data ingestion.
-* Loaded healthcare data into ADLS Gen2.
-* Created Bronze Delta tables in Databricks.
-* Implemented Silver transformations using dbt.
-* Developed Gold analytical models using dbt.
-* Implemented SQL-based data transformations.
-* Performed data quality and validation checks.
-* Worked with Unity Catalog and Databricks schemas.
-* Prepared analytics-ready datasets for dashboards.
-* Implemented Airflow pipeline orchestration.
-* Integrated Slack alerts for pipeline monitoring.
-* Monitored pipeline execution and troubleshooting.
-* Maintained project code using Git and GitHub.
+* Worked on the end-to-end healthcare data engineering pipeline.
+* Worked with Azure Data Factory for source-data ingestion.
+* Worked with Azure Data Lake Storage Gen2.
+* Supported CSV-to-Parquet data processing.
+* Created and worked with Bronze external tables in Databricks.
+* Developed Silver-layer transformations using dbt.
+* Developed Gold-layer analytical models using dbt.
+* Implemented healthcare business transformations.
+* Worked with patient risk-score calculations.
+* Worked with readmission-risk analysis.
+* Implemented data-quality validation.
+* Worked with duplicate detection and cleansing.
+* Worked with audit and error-handling models.
+* Developed and validated healthcare analytical marts.
+* Performed testing using Python and Pytest.
+* Worked with Databricks Unity Catalog.
+* Supported dashboard-ready Gold datasets.
+* Worked with pipeline monitoring and Slack failure alerts.
+* Supported Azure DevOps repository and CI/CD processes.
 
 ---
 
 # 📈 Key Outcomes
 
-* Built an end-to-end healthcare data engineering pipeline.
-* Implemented Azure-based Lakehouse architecture.
-* Created Bronze, Silver, and Gold data layers.
-* Automated healthcare data ingestion.
-* Created reusable dbt transformation models.
-* Built analytics-ready healthcare datasets.
-* Implemented data quality validation.
-* Added Airflow pipeline orchestration.
-* Integrated Slack monitoring and alerts.
-* Improved reliability and maintainability of healthcare analytics processing.
+The project provides:
+
+* End-to-end healthcare data processing.
+* Azure-based Lakehouse architecture.
+* Bronze, Silver, and Gold data layers.
+* Centralized healthcare data processing.
+* Clean and standardized healthcare datasets.
+* Deduplicated patient and hospital records.
+* Patient risk scoring.
+* Readmission-risk categorization.
+* Hospital performance analytics.
+* Healthcare cost analytics.
+* Laboratory abnormality analysis.
+* Patient vitals trend analysis.
+* Lifestyle-health correlation analysis.
+* Monthly and quarterly healthcare trends.
+* Automated data-quality testing.
+* Data-quality audit and error-handling models.
+* Dashboard-ready analytical datasets.
+* Pipeline monitoring and failure notifications.
+* Azure DevOps CI/CD support.
 
 ---
 
 # 🔮 Future Enhancements
 
-* Implement incremental data processing.
-* Add advanced patient risk scoring.
-* Implement machine learning-based healthcare predictions.
-* Add automated CI/CD for dbt and Databricks.
-* Improve real-time healthcare monitoring.
-* Add additional data quality frameworks.
-* Implement comprehensive pipeline observability.
-* Expand healthcare analytics dashboards.
+Potential future improvements include:
+
+* Implement fully automated Airflow DAG deployment.
+* Add incremental processing for large healthcare datasets.
+* Add advanced patient-risk prediction models.
+* Introduce machine-learning-based readmission prediction.
+* Implement real-time healthcare monitoring.
+* Expand data-quality rules.
+* Add centralized pipeline observability.
+* Implement automated CI/CD deployment of dbt models.
+* Add more advanced healthcare dashboards.
+* Introduce historical tracking for changing hospital and patient attributes.
 
 ---
 
 # 📌 Conclusion
 
-This project demonstrates an end-to-end **Healthcare Patient Analytics Data Engineering Pipeline** built using modern Azure and Databricks technologies.
+The **Healthcare Patient Analytics Pipeline** demonstrates an end-to-end modern Data Engineering solution for transforming healthcare data into reliable and analytics-ready datasets.
 
-The pipeline combines **Azure Data Factory, ADLS Gen2, Databricks, Delta Lake, Unity Catalog, dbt, Apache Airflow, Slack, SQL, and Git/GitHub** to create a scalable and reliable healthcare analytics platform.
+The project combines:
 
-By implementing the **Medallion Architecture**, the project transforms raw healthcare data into clean, validated, and analytics-ready datasets while providing automated orchestration, monitoring, data quality validation, and business insights.
+**Azure Data Factory → ADLS Gen2 → Databricks → Delta Lake → Unity Catalog → dbt → Gold Analytics → Testing → Monitoring**
+
+to create a structured healthcare analytics platform.
+
+The implementation follows **Medallion Architecture**, separating raw ingestion, data cleansing, and business analytics into Bronze, Silver, and Gold layers.
+
+The Gold layer provides a star-schema-based analytical foundation through:
+
+```text
+DIM_PATIENT
+DIM_HOSPITAL
+DIM_DATE
+DIM_OBSERVATION
+FACT_HEALTH_METRICS
+```
+
+and supports eight business-focused analytical marts covering patient risk, hospital performance, vitals, costs, readmission risk, lifestyle-health relationships, laboratory abnormalities, and monthly/quarterly trends.
+
+The project also incorporates **data-quality audits, automated Pytest validation, Slack failure notifications, Unity Catalog governance, and Azure DevOps CI/CD**, demonstrating the key components of a production-oriented healthcare Data Engineering pipeline.
+
+---
+
+## 👥 Project Team
+
+* Harshini Maddi
+* Shanmuga Sundaram
+* Rakesh Akurathi
+* Saritha
+* Srinadh
+
+**Built as part of the Revature Readiness Program Capstone Project.**
